@@ -1,4 +1,4 @@
-# PixMeta final QA checklist (Windows, RC2 installer)
+# PixMeta final QA checklist (Windows, v1.0.0)
 
 Build with **Build EXE.bat**, then start `publish\win-x64\PixMeta.exe`.
 
@@ -17,9 +17,9 @@ Build with **Build EXE.bat**, then start `publish\win-x64\PixMeta.exe`.
 
 No general-purpose file editing is performed. PixMeta is a viewer.
 
-## Installer integration QA (mandatory before 1.0.0)
+## Installer integration QA (stable release regression checklist)
 
-- [ ] GitHub Actions Windows build passes and produces `PixMeta-Setup-v0.5.19-RC3.exe`.
+- [ ] GitHub Actions Windows build passes and produces `PixMeta-Setup-v1.0.0.exe`.
 - [ ] On a clean Windows 10/11 account, run the Setup.exe. No .NET SDK or admin required.
 - [ ] Start Menu shortcut launches PixMeta. Desktop shortcut is created if selected.
 - [ ] Double-click a PNG/JPG/WEBP/GIF in Explorer after choosing PixMeta in Open with → Always use.
@@ -29,3 +29,5 @@ No general-purpose file editing is performed. PixMeta is a viewer.
 - [ ] Reinstall over the same version and test updating over an older installed version: no duplicate shortcuts/extra uninstall entries.
 - [ ] Uninstall from Windows Installed apps. App files, PixMeta shortcuts and its Open with registrations are removed; image files are NOT deleted.
 - [ ] Run the portable `PixMeta.exe` independently and open an image; the self-contained build does not need a globally installed .NET runtime.
+
+- [ ] Confirm all installation task labels, finish-page options and uninstall shortcut appear in Russian on Russian Windows (English on English Windows).

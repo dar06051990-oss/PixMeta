@@ -3,6 +3,10 @@ name: Build PixMeta Windows installer
 on:
   push:
     branches: [main]
+    paths:
+      - 'PixMeta/**'
+      - 'README.md'
+      - '.github/workflows/build-windows.yml'
   workflow_dispatch:
 
 permissions:
@@ -40,11 +44,11 @@ jobs:
         run: |
           & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' 'PixMeta/installer/PixMeta.iss'
           if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compile failed' }
-          if (-not (Test-Path 'PixMeta/dist/PixMeta-Setup-v0.5.19-RC3.exe')) { throw 'Setup EXE missing' }
+          if (-not (Test-Path 'PixMeta/dist/PixMeta-Setup-v1.0.0.exe')) { throw 'Setup EXE missing' }
       - name: Smoke-test installation, shortcuts and uninstall
         shell: pwsh
         run: |
-          $setup = (Resolve-Path 'PixMeta/dist/PixMeta-Setup-v0.5.19-RC3.exe').Path
+          $setup = (Resolve-Path 'PixMeta/dist/PixMeta-Setup-v1.0.0.exe').Path
           $installDir = Join-Path $env:LOCALAPPDATA 'Programs\PixMeta'
           $install = Start-Process -FilePath $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-','/TASKS=desktopicon' -Wait -PassThru
           if ($install.ExitCode -ne 0) { throw "Installer exit code $($install.ExitCode)" }
@@ -60,7 +64,7 @@ jobs:
       - name: Upload finished Windows installer
         uses: actions/upload-artifact@v4
         with:
-          name: PixMeta-Setup-v0.5.19-RC3
-          path: PixMeta/dist/PixMeta-Setup-v0.5.19-RC3.exe
+          name: PixMeta-Setup-v1.0.0
+          path: PixMeta/dist/PixMeta-Setup-v1.0.0.exe
           if-no-files-found: error
           retention-days: 90

@@ -1,6 +1,8 @@
-# PixMeta v0.5.19 RC2 — Windows installer candidate
+# PixMeta v1.0.0 — Windows image viewer
 
 Picasa-inspired image viewer with AI-generation metadata.
+
+**Stable release v1.0.0:** self-contained Windows x64 installer with the approved PixMeta icon, shortcut creation and uninstall support. The previous RC3 was tested on the owner's Windows computer; this release changes only installer captions, versions and documentation, not the viewer logic. Get the installation EXE from [GitHub Releases](https://github.com/dar06051990-oss/PixMeta/releases/latest). The viewer UI itself still uses English; only the installer has been localized.
 
 ## v0.4
 - image-first dark overlay layout
@@ -135,3 +137,10 @@ Installer features:
 **Build artifacts:** The `PixMeta/installer/PixMeta.iss` Inno Setup script and `.github/workflows/build-windows.yml` GitHub Actions workflow make `PixMeta-Setup-v0.5.19-RC3.exe` and an optional standalone portable `PixMeta.exe`.
 
 This ZIP contains the installer **source and automatic build recipe**, NOT a precompiled `Setup.exe`. The full Windows packaging must be compiled and tested on a Windows runner. For a developer-only local build, run `Build Setup.bat` with .NET 8 SDK and Inno Setup 6 installed. For actual users, provide the compiled setup executable from GitHub Actions or a release.
+
+## v1.0.0 — Windows stable installer
+
+- Russian and English installer options, completion-page checkboxes and Start menu uninstall shortcut.
+- Version 1.0.0 in the installed application and the setup program, with the same AppId for in-place upgrades.
+- The viewer code and approved PixMeta icon are identical to the working RC3 release.
+- Ready-made installer in [GitHub Releases](https://github.com/dar06051990-oss/PixMeta/releases); source files and developer BAT scripts are not needed by end users.

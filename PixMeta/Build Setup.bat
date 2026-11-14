@@ -26,9 +26,9 @@ if not exist "publish\win-x64\PixMeta.exe" goto failed
 echo [2/2] Compiling installer...
 "%ISCC%" "installer\PixMeta.iss"
 if errorlevel 1 goto failed
-if not exist "dist\PixMeta-Setup-v0.5.19-RC3.exe" goto failed
+if not exist "dist\PixMeta-Setup-v1.0.0.exe" goto failed
 explorer "dist"
-echo Done! Installable package: dist\PixMeta-Setup-v0.5.19-RC3.exe
+echo Done! Installable package: dist\PixMeta-Setup-v1.0.0.exe
 pause
 exit /b 0
 :failed

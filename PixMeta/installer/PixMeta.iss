@@ -1,5 +1,5 @@
 ﻿#define MyAppName "PixMeta"
-#define MyAppVersion "0.5.19-rc3"
+#define MyAppVersion "1.0.0"
 #define MyAppPublisher "PixMeta"
 #define MyAppExeName "PixMeta.exe"
 
@@ -10,7 +10,7 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName=PixMeta {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-VersionInfoVersion=0.5.19.3
+VersionInfoVersion=1.0.0.0
 DefaultDirName={localappdata}\Programs\PixMeta
 DefaultGroupName=PixMeta
 PrivilegesRequired=lowest
@@ -20,7 +20,7 @@ DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\PixMeta.ico
 SetupIconFile=..\assets\PixMeta.ico
 OutputDir=..\dist
-OutputBaseFilename=PixMeta-Setup-v0.5.19-RC3
+OutputBaseFilename=PixMeta-Setup-v1.0.0
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -33,9 +33,21 @@ SetupLogging=yes
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
+[CustomMessages]
+english.AssociationTask=Show PixMeta in "Open with" for supported image types
+russian.AssociationTask=Добавить PixMeta в меню «Открыть с помощью» для поддерживаемых форматов изображений
+english.IntegrationGroup=Windows file integration
+russian.IntegrationGroup=Интеграция с Windows
+english.RunPixMeta=Launch PixMeta
+russian.RunPixMeta=Запустить PixMeta
+english.MakeDefault=Choose PixMeta as the default image viewer in Windows Settings
+russian.MakeDefault=Выбрать PixMeta просмотрщиком изображений по умолчанию в параметрах Windows
+english.UninstallPixMeta=Uninstall PixMeta
+russian.UninstallPixMeta=Удалить PixMeta
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
-Name: "associations"; Description: "Show PixMeta in Open with for supported image types"; GroupDescription: "Windows file integration"; Flags: checkedonce
+Name: "associations"; Description: "{cm:AssociationTask}"; GroupDescription: "{cm:IntegrationGroup}"; Flags: checkedonce
 
 [Files]
 ; dotnet publish --self-contained true --single-file creates a Windows EXE + optional sidecars.
@@ -45,7 +57,7 @@ Source: "..\assets\PixMeta.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\PixMeta"; Filename: "{app}\PixMeta.exe"; WorkingDir: "{app}"; IconFilename: "{app}\PixMeta.ico"
-Name: "{group}\Uninstall PixMeta"; Filename: "{uninstallexe}"
+Name: "{group}\{cm:UninstallPixMeta}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\PixMeta"; Filename: "{app}\PixMeta.exe"; WorkingDir: "{app}"; IconFilename: "{app}\PixMeta.ico"; Tasks: desktopicon
 
 [Registry]
@@ -92,6 +104,6 @@ Root: HKCU; Subkey: "Software\Classes\Applications\PixMeta.exe\SupportedTypes"; 
 Root: HKCU; Subkey: "Software\Classes\.apng\OpenWithProgids"; ValueType: string; ValueName: "PixMeta.Image"; ValueData: ""; Flags: uninsdeletevalue; Tasks: associations
 
 [Run]
-Filename: "{app}\PixMeta.exe"; Description: "Launch PixMeta"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\PixMeta.exe"; Description: "{cm:RunPixMeta}"; Flags: nowait postinstall skipifsilent
 ; Windows 10/11 protect UserChoice. This opens Default Apps; it does not force a default handler.
-Filename: "{sys}\explorer.exe"; Parameters: "ms-settings:defaultapps"; Description: "Choose PixMeta as default image viewer in Windows Settings"; Flags: nowait postinstall skipifsilent unchecked
+Filename: "{sys}\explorer.exe"; Parameters: "ms-settings:defaultapps"; Description: "{cm:MakeDefault}"; Flags: nowait postinstall skipifsilent unchecked
