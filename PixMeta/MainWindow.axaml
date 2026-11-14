@@ -1,0 +1,98 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ x:Class="PixMeta.MainWindow" Title="PixMeta" Icon="/assets/PixMeta.ico" Width="1440" Height="900" MinWidth="900" MinHeight="600"
+ WindowStartupLocation="CenterScreen" TransparencyLevelHint="Transparent,AcrylicBlur" Background="#E80B0D11"
+ KeyDown="Window_KeyDown">
+ <Grid>
+  <!-- image stage; metadata floats over it instead of stealing permanent space -->
+  <Grid Name="Stage" Background="#22000000">
+   <Border Margin="4" CornerRadius="6" ClipToBounds="True">
+    <Grid Name="ImageScroller" MinWidth="400" MinHeight="300" ClipToBounds="True" PointerPressed="ImageScroller_Pressed" PointerMoved="ImageScroller_Moved" PointerReleased="ImageScroller_Released">
+     <Image Name="Viewer" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="50%,50%"/>
+     <TextBlock Name="Empty" Text="Open an image" FontSize="22" Opacity=".42" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+   </Border>
+
+   <Border Name="InfoPanel" IsVisible="False" Width="420" HorizontalAlignment="Right" Margin="0,44,4,82"
+           CornerRadius="14" Background="#F2181B22" Padding="16" BoxShadow="0 8 28 0 #88000000">
+    <Grid RowDefinitions="Auto,*">
+     <Grid ColumnDefinitions="*,Auto">
+      <StackPanel>
+       <StackPanel Orientation="Horizontal" Spacing="6">
+        <TextBlock Text="AI METADATA" FontWeight="Bold" Opacity=".55" VerticalAlignment="Center"/>
+        <Button Name="CopyGenerationButton" Content="⧉" Click="CopyGeneration_Click" IsVisible="False" Padding="5,1" MinWidth="26" ToolTip.Tip="Copy generation data"/>
+       </StackPanel>
+       <TextBlock Name="Source" Text="No generation metadata" FontSize="18" FontWeight="SemiBold"/>
+      </StackPanel>
+      <Button Grid.Column="1" Content="✕" Click="Info_Click" VerticalAlignment="Top"/>
+     </Grid>
+     <ScrollViewer Grid.Row="1" Margin="0,12,0,0" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="9">
+       <TextBlock Text="Prompt" FontWeight="Bold"/>
+       <TextBlock Name="PromptMissing" Text="Not embedded in file" IsVisible="False" Opacity=".55" FontStyle="Italic"/>
+       <Border CornerRadius="9" BorderBrush="#55FFFFFF" BorderThickness="1" Background="#55101217">
+        <Grid>
+         <TextBox Name="Prompt" IsReadOnly="True" TextWrapping="Wrap" MinHeight="70" MaxHeight="170" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderThickness="0" Background="Transparent" Padding="10,10,38,10"/>
+         <Button Name="CopyPromptButton" Content="⧉" Click="CopyPrompt_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5" Padding="6,2" MinWidth="28" ToolTip.Tip="Copy"/>
+        </Grid>
+       </Border>
+       <TextBlock Text="Negative prompt" FontWeight="Bold"/>
+       <Border CornerRadius="9" BorderBrush="#55FFFFFF" BorderThickness="1" Background="#55101217">
+        <Grid>
+         <TextBox Name="Negative" IsReadOnly="True" TextWrapping="Wrap" MinHeight="60" MaxHeight="160" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderThickness="0" Background="Transparent" Padding="10,10,38,10"/>
+         <Button Name="CopyNegativeButton" Content="⧉" Click="CopyNegative_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5" Padding="6,2" MinWidth="28" ToolTip.Tip="Copy"/>
+        </Grid>
+       </Border>
+       <TextBlock Text="Parameters" FontWeight="Bold"/>
+       <Border CornerRadius="9" BorderBrush="#55FFFFFF" BorderThickness="1" Background="#55101217">
+        <Grid>
+         <TextBox Name="Params" IsReadOnly="True" TextWrapping="Wrap" MinHeight="100" MaxHeight="240" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderThickness="0" Background="Transparent" Padding="10,10,38,10"/>
+         <Button Name="CopyParamsButton" Content="⧉" Click="CopyParams_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5" Padding="6,2" MinWidth="28" ToolTip.Tip="Copy"/>
+        </Grid>
+       </Border>
+       <Expander Header="Raw metadata"><TextBox Name="Raw" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="300" ScrollViewer.VerticalScrollBarVisibility="Auto"/></Expander>
+      </StackPanel>
+     </ScrollViewer>
+    </Grid>
+   </Border>
+  </Grid>
+
+  <!-- compact floating controls -->
+  <Border Name="ControlBar" PointerWheelChanged="Bottom_Wheel" Background="#D91A1E25" CornerRadius="10" Padding="4" Margin="0,0,0,79" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+   <StackPanel Orientation="Horizontal" Spacing="4">
+    <Button Content="◀" Padding="7,3" MinWidth="28" MinHeight="26" Click="Prev_Click" ToolTip.Tip="Previous image"/>
+    <Button Content="▶" Padding="7,3" MinWidth="28" MinHeight="26" Click="Next_Click" ToolTip.Tip="Next image"/>
+    <Button Content="−" Padding="7,3" MinWidth="28" MinHeight="26" Click="ZoomOut_Click"/>
+    <TextBlock Name="ZoomText" Text="100%" Width="42" FontSize="12" TextAlignment="Center" VerticalAlignment="Center" Opacity=".72"/>
+    <Button Content="+" Padding="7,3" MinWidth="28" MinHeight="26" Click="ZoomIn_Click"/>
+    <Button Content="ⓘ" Padding="7,3" MinWidth="28" MinHeight="26" Click="Info_Click" ToolTip.Tip="AI Info"/>
+    <Border Name="AnimationDivider" IsVisible="False" Width="1" Background="#55FFFFFF" Margin="5,3"/>
+    <StackPanel Name="AnimationPanel" IsVisible="False" Orientation="Horizontal" Spacing="8">
+     <Button Content="◀|" Click="FramePrev_Click"/><Button Name="PlayPause" Content="⏸" Click="PlayPause_Click"/><Button Content="|▶" Click="FrameNext_Click"/>
+     <TextBlock Name="FrameInfo" Text="1 / 1" VerticalAlignment="Center" Opacity=".7"/>
+    </StackPanel>
+   </StackPanel>
+  </Border>
+
+  <!-- Picasa-like filmstrip -->
+  <Border Name="FilmstripArea" PointerWheelChanged="Bottom_Wheel" Background="#99101217" Padding="6,3" Height="76" VerticalAlignment="Bottom">
+   <Grid RowDefinitions="*,Auto">
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+     <StackPanel Name="ThumbnailStrip" Orientation="Horizontal" Spacing="7" HorizontalAlignment="Center"/>
+    </ScrollViewer>
+    <TextBlock Grid.Row="1" Name="Status" Text="Ready" HorizontalAlignment="Center" Margin="0,4,0,0" Opacity=".58"/>
+   </Grid>
+  </Border>
+
+  <!-- top bar is last so it stays above the full-screen image hit-test layer -->
+  <Border Name="TopBar" Background="#55171A20" Padding="12,4" VerticalAlignment="Top" Height="40">
+   <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto">
+    <TextBlock Text="PixMeta" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+    <TextBlock Grid.Column="1" Name="FileName" Text="Open an image" Margin="16,0" VerticalAlignment="Center" Opacity=".62" TextTrimming="CharacterEllipsis"/>
+    <Button Grid.Column="2" Content="Open" Click="Open_Click" Margin="4,0"/>
+    <Button Grid.Column="3" Name="FullscreenButton" Content="⛶" Click="Fullscreen_Click" Margin="4,0"/>
+    <Button Grid.Column="4" Name="OverlayMinimizeButton" Content="—" Click="Minimize_Click" Margin="4,0" ToolTip.Tip="Minimize PixMeta"/>
+    <Button Grid.Column="5" Name="OverlayCloseButton" Content="✕" Click="Close_Click" Margin="4,0" ToolTip.Tip="Close PixMeta"/>
+   </Grid>
+  </Border>
+ </Grid>
+</Window>
