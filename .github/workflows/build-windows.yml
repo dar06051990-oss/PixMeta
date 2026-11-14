@@ -1,0 +1,66 @@
+name: Build PixMeta Windows installer
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-installer:
+    runs-on: windows-latest
+    steps:
+      - name: Check out PixMeta source
+        uses: actions/checkout@v4
+      - name: Install .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build standalone Windows application
+        shell: pwsh
+        run: |
+          dotnet restore PixMeta/PixMeta.csproj -r win-x64
+          if ($LASTEXITCODE -ne 0) { throw 'dotnet restore failed' }
+          dotnet publish PixMeta/PixMeta.csproj --no-restore -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:PublishTrimmed=false -o PixMeta/publish/win-x64
+          if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
+          if (-not (Test-Path 'PixMeta/publish/win-x64/PixMeta.exe')) { throw 'PixMeta.exe missing' }
+      - name: Install Inno Setup 6
+        shell: pwsh
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+            if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed' }
+          }
+          if (-not (Test-Path $iscc)) { throw 'ISCC.exe missing after install' }
+      - name: Compile PixMeta Setup.exe
+        shell: pwsh
+        run: |
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' 'PixMeta/installer/PixMeta.iss'
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compile failed' }
+          if (-not (Test-Path 'PixMeta/dist/PixMeta-Setup-v0.5.19-RC3.exe')) { throw 'Setup EXE missing' }
+      - name: Smoke-test installation, shortcuts and uninstall
+        shell: pwsh
+        run: |
+          $setup = (Resolve-Path 'PixMeta/dist/PixMeta-Setup-v0.5.19-RC3.exe').Path
+          $installDir = Join-Path $env:LOCALAPPDATA 'Programs\PixMeta'
+          $install = Start-Process -FilePath $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-','/TASKS=desktopicon' -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Installer exit code $($install.ExitCode)" }
+          if (-not (Test-Path (Join-Path $installDir 'PixMeta.exe'))) { throw 'Installed PixMeta.exe missing' }
+          if (-not (Test-Path (Join-Path $installDir 'PixMeta.ico'))) { throw 'Approved installed icon missing' }
+          $startMenu = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\PixMeta\PixMeta.lnk'
+          if (-not (Test-Path $startMenu)) { throw 'Start menu shortcut missing' }
+          $uninstaller = Join-Path $installDir 'unins000.exe'
+          if (-not (Test-Path $uninstaller)) { throw 'Uninstaller missing' }
+          $uninstall = Start-Process -FilePath $uninstaller -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "Uninstaller exit code $($uninstall.ExitCode)" }
+          if (Test-Path (Join-Path $installDir 'PixMeta.exe')) { throw 'Uninstall did not remove PixMeta.exe' }
+      - name: Upload finished Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: PixMeta-Setup-v0.5.19-RC3
+          path: PixMeta/dist/PixMeta-Setup-v0.5.19-RC3.exe
+          if-no-files-found: error
+          retention-days: 90
